@@ -29,7 +29,7 @@ fill_missing_values <- function(data) {
   
   #MasVnrArea 8 NAs
   summary(data$MasVnrArea)
-  data$MasVnrArea[is.na(data$MasVnrArea)] <- median(data$MasVnrArea, na.rm = T)
+  data$MasVnrArea[is.na(data$MasVnrArea)] <- 0
   
   #BsmtQual 37 NAs
   summary(data$BsmtQual)
