@@ -24,7 +24,7 @@ fill_missing_values <- function(data) {
   
   #MasVnrType 8 NAs
   summary(data$MasVnrType)
-  data$MasVnrType <- na_factor_fixer(data$MasVnrType, "no_masonry")
+  data$MasVnrType <- na_factor_fixer(data$MasVnrType, "None")
   summary(data$MasVnrType)
   
   #MasVnrArea 8 NAs
