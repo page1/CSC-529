@@ -93,3 +93,7 @@ fill_missing_values <- function(data) {
   }
   return(data)
 }
+
+normalize_data <- function(){
+  #put stuff here
+}
