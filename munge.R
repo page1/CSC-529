@@ -111,10 +111,10 @@ filled_missing_values_train$EnclosedPorch <- normalize_data(filled_missing_value
 filled_missing_values_train$MiscVal <- normalize_data(filled_missing_values_train$MiscVal)
 
 #log price
-filled_missing_values$log_price <- log(filled_missing_values$SalePrice)
+filled_missing_values_train$log_price <- log(filled_missing_values_train$SalePrice)
 #binning
 install.packages("smbinning")
 library(smbinning)
 bins <- 10
-cutpoints<-quantile(filled_missing_values$log_price,(0:bins)/bins)
-filled_missing_values$binnedSalePrice <-cut(filled_missing_values$log_price,cutpoints,include.lowest=TRUE)
+cutpoints<-quantile(filled_missing_values_train$log_price,(0:bins)/bins)
+filled_missing_values_train$binnedSalePrice <-cut(filled_missing_values_train$log_price,cutpoints,include.lowest=TRUE)
