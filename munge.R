@@ -97,5 +97,24 @@ fill_missing_values <- function(data) {
 normalize_data <- function(x){
  norm_val <- (x-min(x))/(max(x)-min(x))
 }
+filled_missing_values_train$MSSubClass <- normalize_data(filled_missing_values_train$MSSubClass)
+filled_missing_values_train$LotFrontage <- normalize_data(filled_missing_values_train$LotFrontage)
 filled_missing_values_train$LotArea <- normalize_data(filled_missing_values_train$LotArea)
-#we need to call the above line on every variable to normalize
+filled_missing_values_train$MasVnrArea <- normalize_data(filled_missing_values_train$MasVnrArea)
+filled_missing_values_train$BsmtFinSF1 <- normalize_data(filled_missing_values_train$BsmtFinSF1)
+filled_missing_values_train$BsmtFinSF2 <- normalize_data(filled_missing_values_train$BsmtFinSF2)
+filled_missing_values_train$BsmtUnfSF <- normalize_data(filled_missing_values_train$BsmtUnfSF)
+filled_missing_values_train$TotalBsmtSF <- normalize_data(filled_missing_values_train$TotalBsmtSF)
+filled_missing_values_train$WoodDeckSF <- normalize_data(filled_missing_values_train$WoodDeckSF)
+filled_missing_values_train$OpenPorchSF <- normalize_data(filled_missing_values_train$OpenPorchSF)
+filled_missing_values_train$EnclosedPorch <- normalize_data(filled_missing_values_train$EnclosedPorch)
+filled_missing_values_train$MiscVal <- normalize_data(filled_missing_values_train$MiscVal)
+
+#log price
+filled_missing_values$log_price <- log(filled_missing_values$SalePrice)
+#binning
+install.packages("smbinning")
+library(smbinning)
+bins <- 10
+cutpoints<-quantile(filled_missing_values$log_price,(0:bins)/bins)
+filled_missing_values$binnedSalePrice <-cut(filled_missing_values$log_price,cutpoints,include.lowest=TRUE)
