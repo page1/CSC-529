@@ -94,6 +94,8 @@ fill_missing_values <- function(data) {
   return(data)
 }
 
-normalize_data <- function(){
-  #put stuff here
+normalize_data <- function(x){
+ norm_val <- (x-min(x))/(max(x)-min(x))
 }
+filled_missing_values_train$LotArea <- normalize_data(filled_missing_values_train$LotArea)
+#we need to call the above line on every variable to normalize
