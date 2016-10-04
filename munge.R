@@ -94,6 +94,11 @@ fill_missing_values <- function(data) {
   return(data)
 }
 
+#dummies
+install.packages("dummy")
+library(dummy)
+filled_missing_values_train <- dummy(x = filled_missing_values_train)
+#normalize
 normalize_data <- function(x){
  norm_val <- (x-min(x))/(max(x)-min(x))
 }
