@@ -2,6 +2,7 @@
 source("get.R")
 source("munge.R")
 source("analyze.R")
+source("tree.R")
 
 
 #load the necessary packages
@@ -26,9 +27,21 @@ first_pass_summary(train)
 #fill in missing values for the trianing data in munge.R
 train <- fill_missing_values(train)
 
+#rescale and create dummies in munge.R
 train <- normalize_data(train)
 
-sapply(train, class)
+#make histograms in analyze.R
+make_all_hist(train)
+
+#make the tree for feature selection
+library(party)
+fs.tree <- ctree(train$SalePrice ~ ., train, controls = ctree_control(maxdepth = 15))
+
+#pca
+pca_data = train
+pca_data$SalePrice = NULL
+pca_run = prcomp(pca_data, center = TRUE, scale. = FALSE, tol = .1)
+plot(pca_run, type = "l")
+summary(pca_run)
 
 
-make_all_hist(train) #see histograms folder
