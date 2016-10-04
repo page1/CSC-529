@@ -1,46 +1,18 @@
-# Do most mutation & cleaning of data here
+#this will add the na as a factor
+na_factor_fixer <- function(factor_data, na_value){
+  factor_data <- as.character(factor_data)
+  factor_data[is.na(factor_data)] <- na_value
+  as.factor(factor_data)
+}
 
 
+#fill in the missing values
 fill_missing_values <- function(data) {
   
-  na_factor_fixer <- function(factor_data, na_value){
-    factor_data <- as.character(factor_data)
-    factor_data[is.na(factor_data)] <- na_value
-    as.factor(factor_data)
-  }
-
-  #missing values
-  #LotFrontage 259 NAs however we can assume all houses have some street access
-  #and therefore we will simply replace the missing values with the median
-  summary(data$LotFrontage)
   data$LotFrontage[is.na(data$LotFrontage)] <- median(data$LotFrontage, na.rm = T)
-  summary(data$LotFrontage)
-  
-  #Alley 1369 NAs this means that the house didn't have an ally and thus will be coded
-  #as absent
-  summary(data$Alley)
   data$Alley <- na_factor_fixer(data$Alley, 'no_alley')
-  summary(data$Alley)
-  
-  #MasVnrType 8 NAs
-  summary(data$MasVnrType)
   data$MasVnrType <- na_factor_fixer(data$MasVnrType, "None")
-  summary(data$MasVnrType)
-  
-  #MasVnrArea 8 NAs
-  summary(data$MasVnrArea)
   data$MasVnrArea[is.na(data$MasVnrArea)] <- 0
-  
-  #BsmtQual 37 NAs
-  summary(data$BsmtQual)
-  #BsmtCond 37 NAs
-  summary(data$BsmtCond)
-  #BsmtExposure 38 NAs
-  summary(data$BsmtExposure)
-  #BsmtFinType1 37 NAs
-  summary(data$BsmtFinType1)
-  #BsmtFinType2 38 NAs
-  summary(data$BsmtFinType2)
   
   data <- data %>%
     mutate(BsmtQual = na_factor_fixer(BsmtQual, "no_basement"),
@@ -48,33 +20,6 @@ fill_missing_values <- function(data) {
            BsmtExposure = na_factor_fixer(BsmtExposure, "no_basement"),
            BsmtFinType1 = na_factor_fixer(BsmtFinType1, "no_basement"),
            BsmtFinType2 = na_factor_fixer(BsmtFinType2, "no_basement"))
-  
-  summary(data$BsmtQual)
-  summary(data$BsmtCond)
-  summary(data$BsmtExposure)
-  summary(data$BsmtFinType1)
-  summary(data$BsmtFinType2)
-  
-  #Electrical 1 NAs
-  summary(data$Electrical)
-  #FireplaceQu 690 NAs
-  summary(data$FireplaceQu)
-  #GarageType 81 NAs
-  summary(data$GarageType)
-  #GarageYrBlt 81 NAs
-  summary(data$GarageYrBlt)
-  #GarageFinish 81 NAs
-  summary(data$GarageFinish)
-  #GarageQual 81 NAs
-  summary(data$GarageQual)
-  #GarageCond 81 NAs
-  summary(data$GarageCond)
-  #PoolQC 1453 NAs
-  summary(data$PoolQC)
-  #Fence 1179 NAs
-  summary(data$Fence)
-  #MiscFeature 1406 NAs
-  summary(data$MiscFeature)
   
   data <- data %>%
     mutate(Electrical = na_factor_fixer(Electrical, "no_electrical"),
@@ -88,38 +33,53 @@ fill_missing_values <- function(data) {
            Fence = na_factor_fixer(Fence, "no_fence"),
            MiscFeature = na_factor_fixer(MiscFeature, "no_misc"))
  
+  data$Id = NULL
+  
   if(any(!complete.cases(data))){
     stop("there are still cases with NA's !")
   }
   return(data)
 }
 
-#install.packages("dummy")
-library(dummy)
-filled_missing_values_train <- dummy(x = filled_missing_values_train)
 
-#normalize
-normalize_data <- function(x){
- norm_val <- (x-min(x))/(max(x)-min(x))
+#this will convert numeric attributes to 0-1 scale, create dummies for factors
+#and the log sale price and then convert all attributes to numeric
+normalize_data <- function(data){
+  
+  #numeric attributes
+  num_lst = c('LotFrontage', 'LotArea', 'OverallQual', 'OverallCond', 'MasVnrArea', 'CsmtFinSF1',
+              'BsmtUnfSF', 'X1stFlrSF', 'GrLivArea', 'TotRmsAbvGrd', 'GarageArea', 'WoodDeckSF',
+              'OpenPorchSF', 'EnclosedPorch', 'X3SsnPorch', 'ScreenPorch', 'MiscVal', 'SalePrice',
+              'MSSubClass', 'YearBuilt', 'YearRemodAdd', 'YrSold')
+  
+  #convert all numeric attributes to number and all others converted to factors
+  for(i in colnames(data)){
+    if(i %in% num_lst){
+      
+      #convert to numeric and perform min-max normalization
+      data[[i]] = as.numeric(data[[i]])
+      x = data[[i]]
+      x = (x-min(x))/(max(x)-min(x))
+      data[[i]] = x
+      
+    } else {
+      data[[i]] = as.factor(data[[i]])
+    }
+  }
+  
+  #create dummies
+  library(dummy)
+  library(dummies)
+  data = dummy.data.frame(data)
+  
+  #convert all columns to numeric
+  for(i in colnames(data)){
+     data[[i]] <- as.numeric(data[[i]])
+  }
+  
+  #create the log of SalePrice
+  data$SalePrice = log(data$SalePrice)
+  
+  return(data)
+  
 }
-filled_missing_values_train$MSSubClass <- normalize_data(train$MSSubClass)
-filled_missing_values_train$LotFrontage <- normalize_data(train$LotFrontage)
-filled_missing_values_train$LotArea <- normalize_data(train$LotArea)
-filled_missing_values_train$MasVnrArea <- normalize_data(train$MasVnrArea)
-filled_missing_values_train$BsmtFinSF1 <- normalize_data(train$BsmtFinSF1)
-filled_missing_values_train$BsmtFinSF2 <- normalize_data(train$BsmtFinSF2)
-filled_missing_values_train$BsmtUnfSF <- normalize_data(train$BsmtUnfSF)
-filled_missing_values_train$TotalBsmtSF <- normalize_data(train$TotalBsmtSF)
-filled_missing_values_train$WoodDeckSF <- normalize_data(train$WoodDeckSF)
-filled_missing_values_train$OpenPorchSF <- normalize_data(train$OpenPorchSF)
-filled_missing_values_train$EnclosedPorch <- normalize_data(train$EnclosedPorch)
-filled_missing_values_train$MiscVal <- normalize_data(train$MiscVal)
-
-#log price
-filled_missing_values_train$log_price <- log(train$SalePrice)
-#binning
-#install.packages("smbinning")
-library(smbinning)
-bins <- 10
-cutpoints<-quantile(train$log_price,(0:bins)/bins)
-filled_missing_values_train$binnedSalePrice <-cut(filled_missing_values_train$log_price,cutpoints,include.lowest=TRUE)
