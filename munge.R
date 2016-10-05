@@ -53,7 +53,7 @@ normalize_data <- function(data){
   }
   
   data <- data %>%
-    mutate_each(funs(zero_one), -SalePrice, -YearBuilt, -YearRemodAdd, -BsmtFullBath, -BsmtHalfBath, -FullBath, -HalfBath, -BedroomAbvGr, -KitchenAbvGr, -TotRmsAbvGrd, -Fireplaces, -GarageYrBlt, -YrSold) %>%
+    mutate_each(funs(zero_one), -SalePrice) %>%
     mutate(SalePrice = log(SalePrice))
   
   return(data)

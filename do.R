@@ -37,13 +37,15 @@ train_norm <- normalize_data(train_filled)
 train_dummy <- dummy.data.frame(train_norm)
 
 #make the tree for feature selection
-fs.tree <- ctree(SalePrice ~ ., train_dummy, controls = ctree_control(maxdepth = 15))
+fs.tree <- ctree(SalePrice ~ ., train_dummy, controls = ctree_control(maxdepth = 3))
+plot(fs.tree, type = "simple")
 
 #pca
-pca_data <- train_dummy
-pca_data$SalePrice = NULL
-pca_run = prcomp(pca_data, center = TRUE, scale. = FALSE, tol = .1)
+pca_data <- train_dummy %>%
+  select(-SalePrice) # don't need to do pca on the target var
+pca_run <- prcomp(pca_data, center = T, scale. = F, tol = .1)
 plot(pca_run, type = "l")
 summary(pca_run)
+View(pca_run$rotation)
 
 
