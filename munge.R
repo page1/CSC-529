@@ -68,8 +68,6 @@ normalize_data <- function(data){
   }
   
   #create dummies
-  library(dummy)
-  library(dummies)
   data = dummy.data.frame(data)
   
   #convert all columns to numeric

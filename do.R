@@ -6,7 +6,7 @@ source("tree.R")
 
 
 #load the necessary packages
-list.of.packages <- c('dplyr', 'randomForest', 'plotly', 'webshot', 'corrplot', 'party')
+list.of.packages <- c('dplyr', 'randomForest', 'plotly', 'webshot', 'corrplot', 'party', 'dummy', 'dummies')
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) {
   install.packages(new.packages)
@@ -16,19 +16,19 @@ for(package in list.of.packages){
 }
 
 #this will load the trianing data in get.R file
-train <- load_training_data()
+raw_train <- load_training_data()
 
 #get number of observations
-observation_train <- nrow(train)
+observation_train <- nrow(raw_train)
 
 #provide summary statistics for the training data in analyze.R file
-first_pass_summary(train)
+first_pass_summary(raw_train)
 
 #fill in missing values for the trianing data in munge.R
-train <- fill_missing_values(train)
+filled_train <- fill_missing_values(raw_train)
 
 #rescale and create dummies in munge.R
-train <- normalize_data(train)
+train <- normalize_data(filled_train)
 
 #make histograms in analyze.R
 make_all_hist(train)
