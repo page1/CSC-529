@@ -6,7 +6,7 @@ source("tree.R")
 
 
 #load the necessary packages
-list.of.packages <- c('dplyr', 'randomForest', 'plotly', 'webshot', 'corrplot')
+list.of.packages <- c('dplyr', 'randomForest', 'plotly', 'webshot', 'corrplot', 'party')
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) {
   install.packages(new.packages)
@@ -34,7 +34,6 @@ train <- normalize_data(train)
 make_all_hist(train)
 
 #make the tree for feature selection
-library(party)
 fs.tree <- ctree(train$SalePrice ~ ., train, controls = ctree_control(maxdepth = 15))
 
 #pca
