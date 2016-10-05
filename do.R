@@ -25,19 +25,22 @@ observation_train <- nrow(raw_train)
 first_pass_summary(raw_train)
 
 #fill in missing values for the trianing data in munge.R
-filled_train <- fill_missing_values(raw_train)
-
-#rescale and create dummies in munge.R
-train <- normalize_data(filled_train)
+train_filled <- fill_missing_values(raw_train)
 
 #make histograms in analyze.R
-make_all_hist(train)
+make_all_hist(train_filled)
+
+#rescale and create dummies in munge.R
+train_norm <- normalize_data(train_filled)
+
+#create dummies
+train_dummy <- dummy.data.frame(train_norm)
 
 #make the tree for feature selection
-fs.tree <- ctree(train$SalePrice ~ ., train, controls = ctree_control(maxdepth = 15))
+fs.tree <- ctree(SalePrice ~ ., train_dummy, controls = ctree_control(maxdepth = 15))
 
 #pca
-pca_data = train
+pca_data <- train_dummy
 pca_data$SalePrice = NULL
 pca_run = prcomp(pca_data, center = TRUE, scale. = FALSE, tol = .1)
 plot(pca_run, type = "l")

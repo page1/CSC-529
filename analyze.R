@@ -1,7 +1,7 @@
 # Do analysis here
 
 first_pass_summary <- function(data) {
-  summary(train)
+  summary(data)
 }
 
 make_all_hist <- function(data) {

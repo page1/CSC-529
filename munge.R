@@ -45,39 +45,16 @@ fill_missing_values <- function(data) {
 #this will convert numeric attributes to 0-1 scale, create dummies for factors
 #and the log sale price and then convert all attributes to numeric
 normalize_data <- function(data){
-  
-  #numeric attributes
-  num_lst = c('LotFrontage', 'LotArea', 'OverallQual', 'OverallCond', 'MasVnrArea', 'CsmtFinSF1',
-              'BsmtUnfSF', 'X1stFlrSF', 'GrLivArea', 'TotRmsAbvGrd', 'GarageArea', 'WoodDeckSF',
-              'OpenPorchSF', 'EnclosedPorch', 'X3SsnPorch', 'ScreenPorch', 'MiscVal', 'SalePrice',
-              'MSSubClass', 'YearBuilt', 'YearRemodAdd', 'YrSold')
-  
-  #convert all numeric attributes to number and all others converted to factors
-  for(i in colnames(data)){
-    if(i %in% num_lst){
-      
-      #convert to numeric and perform min-max normalization
-      data[[i]] = as.numeric(data[[i]])
-      x = data[[i]]
-      x = (x-min(x))/(max(x)-min(x))
-      data[[i]] = x
-      
-    } else {
-      data[[i]] = as.factor(data[[i]])
+  zero_one <- function(x){
+    if(is.numeric(x)){
+      return((x - min(x)) / (max(x) - min(x)))
     }
+    return(x)
   }
   
-  #create dummies
-  data = dummy.data.frame(data)
-  
-  #convert all columns to numeric
-  for(i in colnames(data)){
-     data[[i]] <- as.numeric(data[[i]])
-  }
-  
-  #create the log of SalePrice
-  data$SalePrice = log(data$SalePrice)
+  data <- data %>%
+    mutate_each(funs(zero_one), -SalePrice) %>%
+    mutate(SalePrice = log(SalePrice))
   
   return(data)
-  
 }
