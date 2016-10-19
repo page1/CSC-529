@@ -48,4 +48,65 @@ plot(pca_run, type = "l")
 summary(pca_run)
 View(pca_run$rotation)
 
+#training and test split
+set.seed(123)
+smp_size <- floor(0.8 * nrow(train_dummy))
+train_ind <- sample(seq_len(nrow(train_dummy)), size = smp_size)
+train <- train_dummy[train_ind, ]
+test <- train_dummy[-train_ind, ]
+
+train$Exterior2ndOther = NULL
+train$ExterCondPo = NULL
+train$HeatingFloor = NULL
+train$MiscFeatureGar2 = NULL
+
+test$Exterior2ndOther = NULL
+test$ExterCondPo = NULL
+test$HeatingFloor = NULL
+test$MiscFeatureGar2 = NULL
+
+#decision tree
+library(rpart)
+library(tree)
+target_test = data.frame(test$SalePrice)
+model.tree <- rpart(SalePrice ~ . , data=train)
+pred.train.tree <- data.frame(predict(model.tree, test))
+cor(pred.train.tree$predict.model.tree..test., target_test$test.SalePrice)
+plot(pred.train.tree$predict.model.tree..test., target_test$test.SalePrice,
+     main = 'Predicted vs Actual SalePrice', ylab = 'SalePrice',
+     xlab = 'Predicted SalePrice', sub = 'Correlation = .84')
+sqrt( sum( (pred.train.tree$predict.model.tree..test. - target_test$test.SalePrice)^2 , na.rm = TRUE ) / nrow(test) )
+
+
+#boosted trees
+library(gbm)
+library(caret)
+gbm.model = gbm(SalePrice ~.,
+                data = train,
+                n.trees=10000,
+                distribution = 'gaussian',
+                cv.folds = 5,
+                shrinkage=0.01)
+
+gbm.perf(gbm.model)
+pred.train.gbm <- data.frame(predict(gbm.model, test))
+cor(pred.train.gbm[,1], target_test$test.SalePrice)
+plot(pred.train.gbm[,1] , target_test$test.SalePrice,
+     main = 'Predicted vs Actual SalePrice', ylab = 'SalePrice',
+     xlab = 'Predicted SalePrice', sub = 'Correlation = .94')
+sqrt( sum( (pred.train.gbm[,1] - target_test$test.SalePrice)^2 , na.rm = TRUE ) / nrow(test) )
+
+
+#random forest
+library(randomForest)
+colnames(train) = make.names(colnames(train), unique = FALSE, allow_ = TRUE)
+colnames(test) = make.names(colnames(test), unique = FALSE, allow_ = TRUE)
+rf <- randomForest(SalePrice ~ . , data=train, ntree=500)
+pred.rf <- data.frame(predict(rf, test))
+cor(pred.rf[,1], target_test$test.SalePrice)
+plot(pred.rf [,1] , target_test$test.SalePrice,
+     main = 'Predicted vs Actual SalePrice', ylab = 'SalePrice',
+     xlab = 'Predicted SalePrice', sub = 'Correlation = .92')
+sqrt( sum( (pred.rf [,1] - target_test$test.SalePrice)^2 , na.rm = TRUE ) / nrow(test) )
+
 
